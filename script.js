@@ -19,6 +19,17 @@ addTaskBtn.addEventListener("click", function () {
     taskInput.value = "";
   }
 });
+// Add task when Enter key is pressed
+taskInput.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); // Prevent the default action of the Enter key
+    const taskText = taskInput.value;
+    if (taskText !== "") {
+      addTask(taskText, false);
+      taskInput.value = "";
+    }
+  }
+});
 
 // Function to add a task to the list
 function addTask(taskText, completed) {
@@ -40,6 +51,12 @@ function addTask(taskText, completed) {
   });
 
   const textNode = document.createTextNode(taskText);
+  const taskSpan = document.createElement("span");
+  taskSpan.className = "task-text";
+  taskSpan.appendChild(textNode);
+  taskSpan.addEventListener("click", function () {
+    editTask(taskSpan);
+  });
 
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
@@ -50,7 +67,7 @@ function addTask(taskText, completed) {
   });
 
   li.appendChild(checkbox);
-  li.appendChild(textNode);
+  li.appendChild(taskSpan);
   li.appendChild(deleteBtn);
 
   if (completed) {
@@ -61,6 +78,47 @@ function addTask(taskText, completed) {
 
   addDragAndDropHandlers(li);
 
+  saveTasks();
+}
+
+// Function to handle task editing
+function editTask(taskSpan) {
+  const currentText = taskSpan.textContent;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = currentText;
+  input.className = "edit-input";
+
+  taskSpan.innerHTML = "";
+  taskSpan.appendChild(input);
+
+  input.focus();
+
+  // Save edited task on Enter or blur
+  input.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (input.value.trim() !== "") {
+        saveEditedTask(taskSpan, input.value);
+      } else {
+        taskSpan.textContent = currentText;
+      }
+    }
+  });
+
+  input.addEventListener("blur", function () {
+    if (input.value.trim() !== "") {
+      saveEditedTask(taskSpan, input.value);
+    } else {
+      taskSpan.textContent = currentText;
+    }
+  });
+}
+
+// Function to save the edited task
+function saveEditedTask(taskSpan, newText) {
+  taskSpan.textContent = newText;
   saveTasks();
 }
 
@@ -78,7 +136,6 @@ function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-
 // Add drag-and-drop event handlers to a task
 function addDragAndDropHandlers(taskItem) {
   taskItem.addEventListener("dragstart", function (e) {
@@ -88,49 +145,65 @@ function addDragAndDropHandlers(taskItem) {
 
   taskItem.addEventListener("dragover", function (e) {
     e.preventDefault();
-    const draggingTask = document.querySelector(".dragging");
-    if (draggingTask !== taskItem) {
-      const bounding = taskItem.getBoundingClientRect();
-      const offset = bounding.y + bounding.height / 2;
-      if (e.clientY - offset > 0) {
-        taskItem.style["border-bottom"] = "solid 2px #ccc";
-        taskItem.style["border-top"] = "";
-      } else {
-        taskItem.style["border-top"] = "solid 2px #ccc";
-        taskItem.style["border-bottom"] = "";
+    try {
+      const draggingTask = document.querySelector(".dragging");
+      if (draggingTask !== taskItem) {
+        taskItem.classList.add("drag-over");
+        const bounding = taskItem.getBoundingClientRect();
+        const offset = bounding.y + bounding.height / 2;
+        if (e.clientY - offset > 0) {
+          taskItem.style["border-bottom"] = "solid 2px #555";
+          taskItem.style["border-top"] = "";
+        } else {
+          taskItem.style["border-top"] = "solid 2px #555";
+          taskItem.style["border-bottom"] = "";
+        }
       }
+    } catch (error) {
+      console.error("Error during dragover operation:", error.message);
     }
   });
 
   taskItem.addEventListener("dragleave", function () {
+    taskItem.classList.remove("drag-over");
     taskItem.style["border-bottom"] = "";
     taskItem.style["border-top"] = "";
   });
 
   taskItem.addEventListener("drop", function (e) {
     e.preventDefault();
-    const draggingTask = document.querySelector(".dragging");
-    if (draggingTask !== taskItem) {
-      taskItem.parentNode.insertBefore(
-        draggingTask,
-        e.clientY - taskItem.getBoundingClientRect().y >
-          taskItem.clientHeight / 2
-          ? taskItem.nextSibling
-          : taskItem
-      );
+    try {
+      const draggingTask = document.querySelector(".dragging");
+      if (draggingTask !== taskItem) {
+        taskItem.parentNode.insertBefore(
+          draggingTask,
+          e.clientY - taskItem.getBoundingClientRect().y >
+            taskItem.clientHeight / 2
+            ? taskItem.nextSibling
+            : taskItem
+        );
+      }
+      taskItem.classList.remove("drag-over");
+      taskItem.style["border-bottom"] = "";
+      taskItem.style["border-top"] = "";
+      draggingTask.classList.remove("dragging");
+      saveTasks();
+    } catch (error) {
+      console.error("Error during drop operation:", error.message);
     }
-    taskItem.style["border-bottom"] = "";
-    taskItem.style["border-top"] = "";
-    draggingTask.classList.remove("dragging");
-    saveTasks();
   });
 
   taskItem.addEventListener("dragend", function () {
-    taskItem.classList.remove("dragging");
-    const tasks = taskList.querySelectorAll("li");
-    tasks.forEach((task) => {
-      task.style["border-bottom"] = "";
-      task.style["border-top"] = "";
-    });
+    try {
+      taskItem.classList.remove("dragging");
+      taskItem.classList.remove("drag-over");
+      const tasks = taskList.querySelectorAll("li");
+      tasks.forEach((task) => {
+        task.style["border-bottom"] = "";
+        task.style["border-top"] = "";
+      });
+    } catch (error) {
+      console.error("Error during dragend operation:", error.message);
+    }
   });
 }
