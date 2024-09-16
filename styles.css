@@ -1,6 +1,4 @@
-/* styles.css */
-
-/* Allgemeine Stile */
+/* general styles */
 body {
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
@@ -22,7 +20,7 @@ body {
   text-align: center;
 }
 
-/* Input und Button-Stile */
+/* Input and button styles */
 .input-container {
   display: flex;
   margin-bottom: 20px;
@@ -51,7 +49,7 @@ body {
   background-color: #218838;
 }
 
-/* Aufgabenliste Stile */
+/* Task styles */
 #taskList {
   list-style: none;
   padding: 0;
@@ -80,7 +78,7 @@ body {
   background-color: #f8f9fa;
 }
 
-/* Checkbox und Button Stile */
+/* Checkbox and delete button styles */
 .checkbox {
   margin-right: 10px;
 }
@@ -94,6 +92,7 @@ body {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
+  margin-left: auto;
 }
 
 .delete-btn:hover {
@@ -101,11 +100,11 @@ body {
 }
 
 .draggable {
-  cursor: move; /* Changes cursor to indicate draggable element */
+  cursor: grab;
 }
 
 .dragging {
-  opacity: 0.5; /* Makes the dragging element semi-transparent */
+  cursor: grabbing;
 }
 
 /* Optional: Highlight drop areas */

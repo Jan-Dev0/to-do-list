@@ -1,5 +1,3 @@
-// script.js
-
 // Select elements
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
@@ -17,18 +15,17 @@ window.addEventListener("load", function () {
 addTaskBtn.addEventListener("click", function () {
   const taskText = taskInput.value;
   if (taskText !== "") {
-    addTask(taskText, false); // Add the task and set completed to false
-    taskInput.value = ""; // Clear the input field
+    addTask(taskText, false);
+    taskInput.value = "";
   }
 });
 
 // Function to add a task to the list
 function addTask(taskText, completed) {
   const li = document.createElement("li");
-  li.draggable = true; // Make each task draggable
+  li.draggable = true;
   li.classList.add("draggable");
 
-  // Create a checkbox
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.className = "checkbox";
@@ -42,10 +39,8 @@ function addTask(taskText, completed) {
     saveTasks();
   });
 
-  // Create a text node
   const textNode = document.createTextNode(taskText);
 
-  // Create a delete button
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "delete-btn";
@@ -54,19 +49,16 @@ function addTask(taskText, completed) {
     saveTasks();
   });
 
-  // Append elements in the correct order
   li.appendChild(checkbox);
   li.appendChild(textNode);
   li.appendChild(deleteBtn);
 
-  // Add 'completed' class if the task is marked as completed
   if (completed) {
     li.classList.add("completed");
   }
 
   taskList.appendChild(li);
 
-  // Add drag-and-drop event listeners
   addDragAndDropHandlers(li);
 
   saveTasks();
@@ -85,6 +77,7 @@ function saveTasks() {
   });
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
+
 
 // Add drag-and-drop event handlers to a task
 function addDragAndDropHandlers(taskItem) {
